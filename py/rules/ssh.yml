@@ -1,0 +1,63 @@
+- id: ssh-bruteforce
+  title: SSH brute force
+  severity: high
+  attack: T1110.001
+  source: ssh
+  type: threshold
+  filter: {action: login_failed}
+  window: 5m
+  count: 10
+
+- id: ssh-password-spray
+  title: SSH password spraying
+  severity: high
+  attack: T1110.003
+  source: ssh
+  type: distinct
+  filter: {action: login_failed}
+  field: user
+  window: 30m
+  count: 10
+
+- id: ssh-distributed-bruteforce
+  title: One SSH account attacked from many addresses
+  severity: high
+  attack: T1110.001
+  source: ssh
+  type: distinct
+  filter: {action: login_failed}
+  group_by: user
+  field: src_ip
+  window: 30m
+  count: 10
+
+- id: ssh-user-enumeration
+  title: SSH probing for many invalid accounts
+  severity: medium
+  attack: T1110.003
+  source: ssh
+  type: distinct
+  filter: {action: invalid_user}
+  field: user
+  window: 30m
+  count: 10
+
+- id: ssh-success-after-failures
+  title: SSH login succeeded after repeated failures
+  severity: critical
+  attack: T1078
+  source: ssh
+  type: sequence
+  filter: {action: login_failed}
+  then: {action: login_success}
+  window: 10m
+  count: 5
+
+- id: ssh-root-login
+  title: Direct root login over SSH
+  severity: medium
+  attack: T1078.003
+  source: ssh
+  type: match
+  filter: {action: login_success}
+  pattern: {user: '^root$'}

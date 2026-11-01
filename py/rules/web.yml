@@ -1,0 +1,59 @@
+- id: web-sqli
+  title: SQL injection attempt
+  severity: high
+  attack: T1190
+  source: web
+  type: match
+  pattern:
+    target_decoded: |-
+      \bunion\b.{0,20}\bselect\b|['"()]\s*(?:or|and)\b|\b(?:or|and)\s+['"]?\w+['"]?\s*(?:=|<|>|\blike\b)|['"]\s*(?:--|#|/\*)|;\s*(?:drop|insert|update|delete|exec|declare|shutdown|select)\b|\(\s*select\b|\bwaitfor\s+delay\b|\bbenchmark\s*\(|\bpg_sleep\b|\bsleep\s*\(|\bxp_cmdshell\b|\bexec(?:ute)?\s+(?:master|xp_|sp_)|\b(?:having|group\s+by|order\s+by)\s+\d|\bisnull\s*\(|\butl_http\b|\bchar\(\d|information_schema|\bselect\b.{1,40}\bfrom\b
+
+- id: web-path-traversal
+  title: Path traversal attempt
+  severity: high
+  attack: T1190
+  source: web
+  type: match
+  pattern:
+    target_decoded: |-
+      (\.\.[/\\]){2,}|(\.\.[/\\]).*(?:etc|windows|proc|boot)\b|=\s*/+(?:etc|proc|root|boot|var/log|usr/local)/|/etc/(?:passwd|shadow|group|hosts)\b|/proc/self\b|/windows/win\.ini|=\s*[a-z]:[\\/]|/\.(?:ssh|bash_history|xauthority)\b
+
+- id: web-xss
+  title: Cross-site scripting attempt
+  severity: medium
+  attack: T1190
+  source: web
+  type: match
+  pattern:
+    target_decoded: |-
+      <[a-z!/]|\bjavascript(?::|&colon;)|\bon[a-z]{3,20}\s*=\s*['"]?\w+\(
+
+- id: web-scanner-agent
+  title: Known vulnerability scanner user agent
+  severity: medium
+  attack: T1595.002
+  source: web
+  type: match
+  pattern:
+    user_agent: 'sqlmap|nikto|nmap|masscan|wpscan|nuclei|gobuster|dirbuster'
+
+- id: web-dir-bruteforce
+  title: Directory brute force
+  severity: medium
+  attack: T1595.003
+  source: web
+  type: distinct
+  filter: {status: 404}
+  field: target
+  window: 1m
+  count: 30
+
+- id: web-sensitive-file
+  title: Request for a sensitive file
+  severity: high
+  attack: T1552.001
+  source: web
+  type: match
+  pattern:
+    target_decoded: |-
+      /\.env\b|/\.git/|/wp-config\.php|/\.aws/credentials
